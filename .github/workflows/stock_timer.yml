@@ -1,0 +1,44 @@
+name: 每日股票定时盯盘
+
+on:
+  # 1. 定时触发：每天北京时间上午 11:00 自动运行（等于世界标准时间 UTC 的凌晨 3 点）
+  schedule:
+    # UTC 01:00~06:00 = 北京时间 09:00~14:00，周一到周五；  UTC 13:00~20:00 = 北京时间 21:00~04:00，周一到周五
+    - cron: '10 1-6 * * 1-5'
+    - cron: '10 13-20 * * 1-5'
+  # 2. 手动触发：允许你在 GitHub 网页上随时点击按钮测试运行
+  workflow_dispatch:
+
+# 屏蔽 GitHub Actions 服务器底层关于 Node 版本废弃的黄色警告提示
+env:
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+
+jobs:
+  check-stock-job:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 虚拟服务器运行
+    steps:
+      # 步骤一：拉取你仓库中的所有文件（包括 stock.go）
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      # 步骤二：在虚拟服务器中安装 Go 语言环境
+      - name: 设置 Go 环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: false # 💡 关键设置：关闭自动依赖缓存，彻底解决没有 go.sum 导致报错的问题
+
+      # 步骤三：运行 Go 语言盯盘脚本，并传入外部动态配置
+      - name: 运行股票分析并推送
+        env:
+          # 🔐 1. 企业微信密钥，保持从 GitHub 网页后台的 Settings 安全读取
+          WECOM_WEBHOOK: ${{ secrets.WECOM_WEBHOOK }}
+          PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
+
+          # ⚙️ 2. 【核心监控区】在这里动态配置你的自选股和买入心理价
+          # 格式规则：股票代码:自定义名字:买入目标心理价。多个股票用英文逗号分隔。
+          # 提示：沪市股票加 sh（如贵州茅台），深市股票加 sz（如万科 A）
+          STOCK_LIST: "sh600900:长江电力:27.0,sh600036:招商银行:36.14,usMSFT:微软:378.5,usV:VISA:330.5"
+
+        run: |
+          go run stock.go
