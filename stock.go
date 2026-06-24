@@ -283,7 +283,7 @@ func sendToPushPlus(
 
 	msg := PushPlusMessage{
 		Token:    token,
-		Title:    "股票价格提醒",
+		Title:    "github股票价格提醒!!",
 		Content:  content,
 		Template: "txt",
 	}
