@@ -156,25 +156,29 @@ func checkStock(code, name string, targetPrice float64) {
 		targetPrice,
 	)
 
-	if currentPrice <= targetPrice {
-
-		fmt.Printf(
-			"🔥 [%s] 已达到目标价\n",
-			name,
-		)
-
-		// sendToWeChat(
-		// 	name,
-		// 	code,
-		// 	currentPrice,
-		// 	targetPrice,
-		// )
-		sendToPushPlus(
-			name,
-			code,
-			currentPrice,
-			targetPrice,
-		)
+	if targetPrice < 0 {
+		if currentPrice <= -targetPrice {
+			fmt.Printf(
+				"🔥 [%s] 已下跌到目标价\n",
+				name,
+			)
+			sendToPushPlus(
+				name,
+				code,
+				currentPrice,
+				targetPrice,
+			)
+		}
+	}
+	if targetPrice > 0 {
+		if currentPrice >= targetPrice {
+			sendToPushPlus(
+				name,
+				code,
+				currentPrice,
+				targetPrice,
+			)
+		}
 	}
 }
 
