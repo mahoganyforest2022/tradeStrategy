@@ -286,7 +286,7 @@ func sendToPushPlus(
 
 	msg := PushPlusMessage{
 		Token:    token,
-		Title:    "父子股价提醒!!",
+		Title:    "腓特烈二世股价提醒!!",
 		Content:  content,
 		Template: "txt",
 	}
